@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kálíčakra — vizuální manuál praxe dvanácti Kálí a kaula metody</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Karla:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0a11;
+  --panel:#171019;
+  --panel2:#1e1520;
+  --line:#3a2b35;
+  --bone:#eae0d2;
+  --ash:#948a7e;
+  --ember:#d94f2b;
+  --ember-soft:#a03d24;
+  --gold:#d9a441;
+  --violet:#a98cc9;
+  --void:#060409;
+  --display:'Cormorant Garamond', Georgia, 'Times New Roman', serif;
+  --body:'Karla', 'Segoe UI', system-ui, sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg);
+  color:var(--bone);
+  font-family:var(--body);
+  font-weight:300;
+  overflow:hidden;
+  background-image:radial-gradient(ellipse 90% 70% at 30% 45%, rgba(120,45,25,.13), transparent 60%),
+                   radial-gradient(ellipse 60% 50% at 78% 20%, rgba(90,60,120,.10), transparent 65%);
+}
+.app{height:100vh;display:flex;flex-direction:column}
+
+/* ── horní lišta ── */
+header{
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding:18px 28px 10px;border-bottom:1px solid var(--line);
+}
+.brand{font-family:var(--display);font-size:1.35rem;letter-spacing:.06em;color:var(--bone)}
+.brand em{color:var(--ember);font-style:normal}
+.kolo-label{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ash)}
+.kolo-label b{color:var(--gold);font-weight:600}
+
+/* ── segmentový progress ── */
+.progress{display:flex;gap:3px;padding:10px 28px 0}
+.seg{height:3px;flex:1;background:#2a2028;border-radius:2px;transition:background .4s}
+.seg.done{background:var(--ember-soft)}
+.seg.now{background:var(--ember);box-shadow:0 0 8px rgba(217,79,43,.7)}
+.seg.k2{--c:var(--gold)}
+.seg.k3{--c:var(--violet)}
+
+/* ── hlavní plocha ── */
+main{flex:1;display:grid;grid-template-columns:minmax(340px,46%) 1fr;gap:0;min-height:0}
+.stage{
+  display:flex;align-items:center;justify-content:center;position:relative;
+  border-right:1px solid var(--line);padding:12px;
+}
+svg{max-width:100%;max-height:100%}
+.content{
+  padding:36px 44px;overflow-y:auto;min-height:0;
+  display:flex;flex-direction:column;justify-content:center;
+}
+.eyebrow{font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ash);margin-bottom:14px}
+.eyebrow .num{color:var(--ember);font-weight:600;margin-right:10px}
+h1{font-family:var(--display);font-weight:500;font-size:clamp(1.8rem,3.4vw,2.9rem);line-height:1.08;margin-bottom:4px}
+.subtitle{font-family:var(--display);font-style:italic;color:var(--gold);font-size:1.15rem;margin-bottom:22px}
+.block{margin-bottom:20px;max-width:60ch}
+.block h3{
+  font-size:.68rem;letter-spacing:.3em;text-transform:uppercase;font-weight:600;
+  color:var(--ash);margin-bottom:7px;
+}
+.block h3.f{color:var(--ember)}
+.block h3.g{color:var(--gold)}
+.block h3.p{color:var(--violet)}
+.block p{font-size:.98rem;line-height:1.62;color:#d8cfc2}
+.hint-x{margin-top:8px;font-size:.78rem;color:var(--ash)}
+.hint-x kbd{border-color:var(--gold);color:var(--gold)}
+
+/* ── overlay X ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(6,4,9,.88);backdrop-filter:blur(5px);
+  display:none;align-items:center;justify-content:center;z-index:50;padding:4vh 4vw;
+}
+.overlay.open{display:flex}
+.overlay-card{
+  background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--ember);
+  max-width:760px;max-height:88vh;overflow-y:auto;padding:40px 48px;border-radius:4px;
+}
+.overlay-card .eyebrow{margin-bottom:10px}
+.overlay-card h2{font-family:var(--display);font-weight:500;font-size:1.9rem;margin-bottom:18px}
+.overlay-card p{font-size:.97rem;line-height:1.72;color:#d8cfc2;margin-bottom:14px}
+.overlay-card p strong{color:var(--gold);font-weight:600}
+.overlay-close{margin-top:8px;font-size:.78rem;color:var(--ash)}
+
+/* ── spodní lišta ── */
+footer{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px 28px;border-top:1px solid var(--line);flex-wrap:wrap;
+}
+.keys{display:flex;gap:18px;flex-wrap:wrap;font-size:.76rem;color:var(--ash)}
+kbd{
+  display:inline-block;border:1px solid #4a3a44;border-bottom-width:2px;border-radius:4px;
+  padding:1px 7px;font-family:var(--body);font-size:.72rem;color:var(--bone);
+  margin-right:5px;background:#221a24;
+}
+.state{font-size:.74rem;letter-spacing:.22em;text-transform:uppercase}
+.state.run{color:var(--ember)}
+.state.pause{color:var(--ash)}
+.btns{display:flex;gap:8px}
+.btns button{
+  background:var(--panel2);border:1px solid var(--line);color:var(--bone);
+  padding:6px 14px;border-radius:4px;font-family:var(--body);font-size:.85rem;cursor:pointer;
+}
+.btns button:hover{border-color:var(--ember);color:var(--ember)}
+.btns button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ── SVG animace ── */
+@keyframes spanda{
+  0%,100%{transform:scale(1);opacity:.9}
+  50%{transform:scale(1.045);opacity:1}
+}
+.pulse{animation:spanda 6s ease-in-out infinite;transform-origin:center}
+.paused .pulse{animation-play-state:paused}
+@media (prefers-reduced-motion:reduce){.pulse{animation:none}}
+
+@media (max-width:860px){
+  main{grid-template-columns:1fr;grid-template-rows:38vh 1fr}
+  .stage{border-right:none;border-bottom:1px solid var(--line)}
+  .content{padding:22px;justify-content:flex-start}
+  h1{font-size:1.7rem}
+  .overlay-card{padding:26px}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header>
+    <div class="brand">Kálí<em>čakra</em> · manuál praxe</div>
+    <div class="kolo-label" id="koloLabel"></div>
+  </header>
+
+  <div class="progress" id="progress"></div>
+
+  <main>
+    <div class="stage" id="stage"></div>
+    <div class="content" id="content"></div>
+  </main>
+
+  <footer>
+    <div class="keys">
+      <span><kbd>mezerník</kbd>běh / zastavit</span>
+      <span><kbd>→</kbd>vpřed</span>
+      <span><kbd>←</kbd>zpět</span>
+      <span><kbd>X</kbd>výklad fáze</span>
+      <span><kbd>Esc</kbd>zavřít výklad</span>
+    </div>
+    <div class="state pause" id="stateLabel">⏸ zastaveno — ovládáte ručně</div>
+    <div class="btns">
+      <button id="bPrev" aria-label="Zpět">←</button>
+      <button id="bPlay" aria-label="Běh / pauza">▶ / ⏸</button>
+      <button id="bNext" aria-label="Vpřed">→</button>
+      <button id="bX" aria-label="Výklad">X · výklad</button>
+    </div>
+  </footer>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true">
+  <div class="overlay-card" id="overlayCard"></div>
+</div>
+
+<script>
+/* ─────────────────────────── DATA ─────────────────────────── */
+const RING = { OBJ:{name:'Kolo objektu · prameja', c:'var(--ember)', hex:'#d94f2b'},
+               POZ:{name:'Kolo poznávání · pramána', c:'var(--gold)', hex:'#d9a441'},
+               SUB:{name:'Kolo poznávajícího · pramátr', c:'var(--violet)', hex:'#a98cc9'},
+               KAULA:{name:'Kaula metoda · práce s intenzitou', c:'var(--ember)', hex:'#d94f2b'},
+               UVOD:{name:'', c:'var(--ash)', hex:'#948a7e'} };
+
+const slides = [
+
+{type:'intro', ring:'UVOD', eyebrow:'Úvod', title:'Dvanáct Kálí a kaula metoda',
+ subtitle:'vizuální manuál praxe podle Kramy Kašmírského šivaismu',
+ blocks:[
+  ['POHLED, BEZ NĚHOŽ PRAXE NEFUNGUJE','f','Každý okamžik zkušenosti prochází cyklem: vyvstání (sršti) → trvání (sthiti) → stažení (samhára) → bezejmenné (anákhjá). Cyklus probíhá na objektu, na poznávání a na poznávajícím — odtud dvanáct Kálí. Kálí zde není bytost mimo vás: je to jméno pro dynamiku vašeho vlastního vědomí.'],
+  ['JAK MANUÁL POUŽÍVAT','g','Šipkami procházejte kolo po jedné Kálí, mezerníkem spusťte pomalý automatický běh (kolo dýchá — spanda; pauza zastaví i dech kola). Klávesa X otevře podrobný výklad každé fáze. Doporučený rytmus: týden až měsíc s jednou čtveřicí, teprve pak dál.']],
+ detail:{title:'O tomto manuálu',
+  paras:['Krama („sekvence") je esoterická linie Kašmírského šivaismu, v níž Kálí není uctívaná bohyně, ale mapa jediného poznávacího aktu v rozlišení dvanácti kroků. Kánonický seznam pochází z Kramastotry a Abhinavagupta jej rozebírá ve 4. kapitole Tantrálóky; tento manuál je praktická rekonstrukce, ne iniciační sádhana.',
+   '<strong>Struktura kola:</strong> Kálí 1–4 požírají objekt (svět), Kálí 5–8 požírají poznávací aparát (smysly, mysl), Kálí 9–12 požírají poznávajícího a sám čas. Dvanáctá, Kálasankaršiní, není fáze mezi ostatními — je to bezejmenné pole, v němž všech jedenáct probíhá.',
+   'Druhá část manuálu — kaula metoda — přenáší totéž vidění do intenzivních emocí: hněv, strach, žal, radost i touha jsou koncentrovaná šakti, a proto brána. Nejde o dvanáct technik, ale o jedno vidění o dvanácti rozměrech, které se učí po částech a nakonec běží samo v každodennosti.']}},
+
+/* ── KOLO OBJEKTU ── */
+{type:'kali', n:1, ring:'OBJ', title:'Srštikálí', subtitle:'ta, která vyvrhuje — vyvstání objektu',
+ blocks:[
+  ['FUNKCE','f','Než uvidíte hrnek, je tu akt, jímž vědomí hrnek vyzáří do pole zkušenosti. Objekt nevstupuje zvenku — vědomí jej emituje ze sebe.'],
+  ['VNITŘNÍ GESTO','g','Úžas nad zrodem. Ne „vidím věc", ale „věc se právě rodí v mém vidění".'],
+  ['MIKRO-PRAXE · PRVNÍ POHLED','p','Zavřete oči na deset vteřin. Otevřete je a zachyťte první zlomek vteřiny vizuálního pole — okamžik, kdy ještě nejsou „věci", jen barevné vyvstávání. Opakujte třikrát. Totéž se zvukem: chyťte jeho zrod dřív, než dostane jméno.']],
+ detail:{title:'Srštikálí — vyvstání',
+  paras:['Krama tu obrací běžnou intuici. Zdá se, že svět je hotový venku a my se na něj díváme; fenomenologicky je to ale naopak: ve vaší zkušenosti se objekt <strong>rodí aktem vnímání</strong>. Srštikálí je tento akt — první paprsek, jímž vědomí projikuje obsah.',
+   'Praktická jemnost: předmětný svět se z čirého vjemu sestaví bleskově, za desítky milisekund. Nejde tedy o to sestavení zastavit, ale <strong>ochutnat moment před sestavením</strong> — chvíli, kdy je vidění, ale ještě ne „stůl" a „okno". Trénink s otevíráním očí a s prvním zvukem v tichu tuto chvíli postupně prodlužuje pozorností, ne časem.',
+   'Souvislost dál: kdo umí zachytit zrod vjemu, později zachytí i zrod myšlenky — a tam se hroutí iluze autora, protože myšlenka prokazatelně vyvstává z téhož bezejmenného pole, do kterého se vrací. Nikdo ji neposlal.']}},
+
+{type:'kali', n:2, ring:'OBJ', title:'Raktakálí', subtitle:'červená, ta, která vychutnává — trvání',
+ blocks:[
+  ['FUNKCE','f','Vědomí objekt drží tím, že jej vychutnává, pije jeho šťávu (rasa). Pozornost je forma chuti — proto se u objektů zdržujeme.'],
+  ['VNITŘNÍ GESTO','g','Vědomé vychutnávání bez uchopování.'],
+  ['MIKRO-PRAXE · DOUŠEK','p','Doušek čaje, sousto, barva za oknem: třicet vteřin dovolte pozornosti plně pít vjem — bez komentáře. Pak si všimněte: ochutnávač oddělený od chuti nelze najít. Je tu jen vychutnávání.']],
+ detail:{title:'Raktakálí — vychutnávání',
+  paras:['Rakta znamená červená i zamilovaná. Sthiti — trvání — není mechanické „udržování" objektu, ale <strong>vášnivé sání zkušenosti</strong>: vědomí drží to, co mu chutná. To vysvětluje ulpívání elegantněji než moralistika — mysl se nelepí na věci ze slabosti, ale protože pozornost je bytostně chuťový orgán.',
+   'Tady tantra rehabilituje požitek: požitek <strong>plně proniknutý pozorností</strong> se stává poznáním. Problém není slast, ale roztržitá, polovičatá konzumace, při níž se pije záminka místo šťávy.',
+   'Vrchol mikro-praxe je zpětný obrat: hledejte toho, kdo vychutnává. Nenajdete ochutnávače stojícího za chutí — jen jediný nedělený akt vychutnávání. To je Raktakálí: vy jako slast poznávání, nikoli vlastník slasti.']}},
+
+{type:'kali', n:3, ring:'OBJ', title:'Sthitinášakálí', subtitle:'ničitelka trvání — konec objektu',
+ blocks:[
+  ['FUNKCE','f','Zájem povoluje, vjem bledne a je propouštěn. Běžná mysl konce nevidí — už skočila na další objekt. Jogín v konci spočine.'],
+  ['VNITŘNÍ GESTO','g','Pouštění s plnou pozorností; milovat doznívání.'],
+  ['MIKRO-PRAXE · DOZNĚNÍ ZVONU','p','Zvuk, který dlouze doznívá — mísa, struna, poslední akord. Jeďte pozorností po zvuku až do úplného konce a ještě kousek za něj. V bodě, kde zvuk přechází v ticho, nechte pozornost padnout do toho ticha.']],
+ detail:{title:'Sthitinášakálí — konec',
+  paras:['Tady se láme moc světa nad myslí. Běžná pozornost je závislá na vznikajícím a trvajícím; mizející ji nezajímá, a proto nikdy nevidí, <strong>kam věci odcházejí</strong>. Jogín Kramy obrací chuť: učí se vyhledávat doznívání, protože konec vjemu je otevřené okno do zdroje.',
+   'Vidžňánabhairava-tantra doporučuje doznívající zvuk výslovně — zvuk je ideální učebnice, protože jeho konec je pomalý a hmatatelný. Celodenní verze: vědomě dokončovat vjemy. Dovřené dveře, dopitý doušek, doznělá věta — a vteřina spočinutí v „už ne".',
+   'Pozor na jemnou past: nesledovat konec proto, „aby něco přišlo". Očekávání je nový objekt. Konec se miluje pro něj samý — a právě tehdy se za ním ukáže to, co nezačíná ani nekončí.']}},
+
+{type:'kali', n:4, ring:'OBJ', title:'Jamakálí', subtitle:'pořadatelka smrti objektu — bezejmenné objektu',
+ blocks:[
+  ['FUNKCE','f','Objekt je stažen do neurčitosti — jako vlna vrácená do moře. Jama, pán smrti a řádu: rozpuštěno beze zbytku, bez náhrobku.'],
+  ['VNITŘNÍ GESTO','g','Dovolit úplné zmizení. Nevytahovat mrtvolu zpět.'],
+  ['MIKRO-PRAXE · NEVZPOMÍNAT','p','Když vjem dozněl, všimněte si nutkání podržet jej vzpomínkou („to byl pěkný zvuk"). Jednou, dvakrát je vědomě pusťte — nechte zmizelé být zmizelým. Zůstaňte pár vteřin v poli, kde po objektu není ani ozvěna.']],
+ detail:{title:'Jamakálí — rozpuštění beze zbytku',
+  paras:['Jemný, ale zásadní rozdíl: „hrnek, který zmizel" je <strong>nová myšlenka</strong>, tedy nový objekt — náhrobek postavený nad hrobem. Jamakálí znamená stav, kdy objektová stopa spočívá nerozvinutá ve vědomí, bez pomníku, bez ozvěny.',
+   'Toto je nácvik umírání v malém. Tibetská i šaivská tradice se shodují, že umění okamžiku smrti je přesně toto gesto: <strong>nedržet mizející</strong>. Kdo je trénoval tisíckrát na zvucích a myšlenkách, má je v rukou, až půjde o všechno.',
+   'Znak zvládnutí: po rozpuštění vjemu nenastupuje prázdno jako nedostatek, ale prázdno jako svěžest — pole je čisté a připravené, nic nechybí. Tím končí kolo objektu; svět byl jednou celý sněden a nic zlého se nestalo.']}},
+
+/* ── KOLO POZNÁVÁNÍ ── */
+{type:'kali', n:5, ring:'POZ', title:'Samhárakálí', subtitle:'stahující — rozpuštění poznávacího aktu',
+ blocks:[
+  ['FUNKCE','f','Objekt zmizel, ale zůstává akt vnímání — „vidění", které vidělo. Samhárakálí je stahuje zpět: paprsek se vrací do lampy.'],
+  ['VNITŘNÍ GESTO','g','Obrátit směr pozornosti o 180° — z „ven na objekt" na „zpět ke zdroji paprsku".'],
+  ['MIKRO-PRAXE · NÁVRAT PAPRSKU','p','Dívejte se deset vteřin na předmět. Pak, s očima otevřenýma, přesuňte zájem z předmětu na samotné vidění — na jeho svítivost. Předmět nechte v poli, ale neživte ho; zájem teče zpět do dívání.']],
+ detail:{title:'Samhárakálí — obrat dovnitř',
+  paras:['Druhé kolo požírá už ne obsah, ale <strong>vnímání samo</strong>. První krok: rozlišit objekt od aktu. Vidění není stůl; vidění je světlo, v němž se stůl ukazuje. Samhárakálí je moment, kdy toto světlo přestává vytékat ven a vrací se ke zdroji.',
+   'Fenomenologicky to má nezaměnitelnou chuť: jako by se pozornost vracela domů tunelem, kterým vyšla. To je pratjáhára v kramickém smyslu — ne zacpání smyslů, ale jejich <strong>vpití zpět</strong>, se smysly dál otevřenými.',
+   'Denní verze: kdykoli si vzpomenete, na tři vteřiny přesuňte váhu zájmu z toho, co vnímáte, na fakt, že vnímání svítí. Svět nezmizí — jen přestane být jediným směrem. Tato drobná změna vektoru je základ všeho dalšího.']}},
+
+{type:'kali', n:6, ring:'POZ', title:'Mrtjukálí', subtitle:'smrt smrti — pozření zbytkové stopy',
+ blocks:[
+  ['FUNKCE','f','Po stažení aktu zůstává reziduum — dojem, samskára, „bylo tu vnímání". Mrtjukálí požírá i tuto stopu. Tady se rozpouští zárodek karmy.'],
+  ['VNITŘNÍ GESTO','g','Nezanechávat účtenku. Zkušenost proběhla, nikdo si nic neschovává.'],
+  ['MIKRO-PRAXE · BEZE STOPY','p','Po jednoduché činnosti (umyté nádobí, odeslaný e-mail) si všimněte mentálního „uloženo, hotovo, moje". Jednou denně toto připsání vědomě vynechte: úkon skončil a vy nepřevezmete potvrzení.']],
+ detail:{title:'Mrtjukálí — smrt toho, co zbylo po smrti',
+  paras:['Karma se nešije z činů, ale ze <strong>stop, které si mysl z činů nechává</strong> — z mikroskopických připsání na účet „já". Mrtjukálí je fáze, v níž se toto účetnictví vynechá: zkušenost proběhla celá, ale nikdo nepodepsal převzetí.',
+   'Zprvu to působí závratně. Účtování ega je nepřetržité a jeho vynechání odhalí, kolik energie stojí — a jak hluboko sahá zvyk dělat ze všeho „mou zkušenost", včetně meditace („dnes mi to šlo").',
+   'Přímá spojnice s Nisargadattou: „žij, jako bys nebyl" — jednej naplno, ale nesbírej otisky jednajícího. A předběžně i s Kálí 9–12: účtenky jsou materiál, z něhož je slepen držitel účtu. Kde se přestanou sbírat, začne držitel řídnout sám od sebe.']}},
+
+{type:'kali', n:7, ring:'POZ', title:'Rudrakálí · Bhadrakálí', subtitle:'rozpouštěčka pochyb — useknutí komentáře',
+ blocks:[
+  ['FUNKCE','f','Kolem poznávání se rojí druhý řád: pochybnost, srovnávání, „bylo to správně?". Rudrakálí požírá myšlení o myšlení. Bhadra = blahodárná; její zásah je úleva.'],
+  ['VNITŘNÍ GESTO','g','Seknout komentář. Nevést spor s myslí.'],
+  ['MIKRO-PRAXE · BEZ DRUHÉ MYŠLENKY','p','Chyťte se při komentování vlastní zkušenosti („tohle jsem řekl blbě") a nechte komentář useknout vprostřed věty — doslova jej nedokončete a spočiňte v pahýlu. Nedokončený komentář se nerozpadne v problém, ale v prostor.']],
+ detail:{title:'Rudrakálí — kartika v akci',
+  paras:['Vikalpa — konceptuální rozdvojení — není první myšlenka, ale <strong>myšlenka o myšlence</strong>: soud, srovnání, obava, zda to bylo správně. Tato druhá vrstva je hlavní zloděj energie a hlavní výrobce utrpení; první vjem skoro nikdy nebolí tolik jako komentář k němu.',
+   'Gesto useknutí vprostřed věty je přesně kartika — zakřivený nůž z ikonografie. Důležité: neusekává se moralisticky („nemám soudit" je jen další soud). Usekává se <strong>čistě mechanicky</strong>, jako se pustí provaz: věta se prostě nedokončí a pozornost spočine v místě, kde skončila.',
+   'Objev, který přijde: pahýl nedokončeného komentáře se sám rozpustí do ticha — mysl nedokáže udržet půlku soudu. Zenová chuť tohoto řezu není náhodná; je to tentýž nástroj. Časem stačí i jen zahlédnutí, že komentář startuje, a řez proběhne sám.']}},
+
+{type:'kali', n:8, ring:'POZ', title:'Mártándakálí', subtitle:'požíračka slunce smyslů — stažení aparátu',
+ blocks:[
+  ['FUNKCE','f','Mártánda, slunce, tu zastupuje dvanáctero poznávacích sil — smysly, mysl, intelekt. Mártándakálí polyká slunce celé: aparát se stahuje do uzlu, z něhož vyrůstá.'],
+  ['VNITŘNÍ GESTO','g','Celistvé stažení — jako želva údy.'],
+  ['MIKRO-PRAXE · ZATÁHNOUT PAPRSKY','p','Vsedě, s vjemy běžícími, proveďte jediné měkké gesto: všechny smysly současně povolit dovnitř, jako když se zavírá květ. Vjemy dál běží, ale odebrali jste jim investici. Na pár vteřin zůstane kompaktní bod „jsem" bez oken.']],
+ detail:{title:'Mártándakálí — pozřené slunce',
+  paras:['Zatímco Samhárakálí (5) vracela jeden paprsek, Mártándakálí stahuje <strong>všechny najednou</strong> — celé slunce poznávání i s dvanácti paprsky (pět smyslů, pět činných schopností, manas a buddhi). Ukazuje se, že „mít smysly" je odvozené: smysly jsou paprsky jediného světla.',
+   'Gesto je nutně celistvé a měkké. Nezacpáváte uši ani nezavíráte oči — jen jedním vnitřním pohybem odeberete investici všem kanálům současně, jako se stahuje hladina k odtoku. Obraz želvy stahující údy je z Bhagavadgíty a kašmírští komentátoři jej milovali.',
+   'Co zbude, je zvláštní: kompaktní, bezrozměrný bod čirého „jsem" — ještě omezený, ještě „můj", ale už bez oken do světa. Nezůstávejte v něm silou; je to jen práh. Právě tento uzel začne třetí kolo rozplétat. Tím končí kolo poznávání: po světě byl sněden i ten, kdo svět přijímal.']}},
+
+/* ── KOLO POZNÁVAJÍCÍHO ── */
+{type:'kali', n:9, ring:'SUB', title:'Paramárkakálí', subtitle:'nejvyšší slunce — rozpuštění ega',
+ blocks:[
+  ['FUNKCE','f','Bod „jsem" má ještě slupku: pocit osoby, vlastníka, jména a životopisu. Paramárkakálí tuto slupku stravuje — zůstává poznávající bez biografie.'],
+  ['VNITŘNÍ GESTO','g','Rozlišit „jsem" od „jsem někdo".'],
+  ['MIKRO-PRAXE · SVLÉKÁNÍ JMÉNA','p','Vnitřně si řekněte své jméno a sledujte, co se k němu přisaje — tíha rolí a historie. Pak jméno pusťte a spočiňte v holém bytí, které tu bylo před jménem. Třikrát tam a zpět: jméno → holé jsem → jméno → holé jsem.']],
+ detail:{title:'Paramárkakálí — jsem bez životopisu',
+  paras:['Třetí kolo je nejjemnější: požírá se subjekt. Krama tu dělá totéž co átma-vičára, jen rozkládá rozpuštění poznávajícího do <strong>čtyř zahlédnutelných kroků</strong> místo jednoho tahu.',
+   'První krok odděluje dvě věci, které se v běžném stavu slévají: čiré <strong>„jsem"</strong> (nepopiratelný fakt bytí-vědomí) a <strong>„jsem ten a ten"</strong> (jméno, role, historie — ahankára). Cvičení se jménem dělá řez viditelným: pocit, který se přisaje k vašemu jménu, je přesně to, co Paramárkakálí požírá; to, co zbývá po puštění jména, je to, co požíráno být nemůže.',
+   'Toto je čistý Nisargadatta: vraťte se z „jsem tohle" do „jsem". Rozdíl mezi oběma stavy je zprvu jemný, ale jakmile je jednou jasně ochutnán, už se nikdy úplně neztratí — a osoba začne být nošena volně, jako kabát, ne jako kůže.']}},
+
+{type:'kali', n:10, ring:'SUB', title:'Kálágnirudrakálí', subtitle:'Kálí ohně konce světa — svědek bez adresy',
+ blocks:[
+  ['FUNKCE','f','I čirý omezený poznávající — „jsem, ale moje jsem, tady, v tomto těle" — je stráven ohněm kálágni. Bdělost přestává mít adresu.'],
+  ['VNITŘNÍ GESTO','g','Dovolit bdělosti nemít střed ani obvod.'],
+  ['MIKRO-PRAXE · BDĚLOST BEZ ADRESY','p','V holém „jsem" hledejte poctivě, kde přesně sídlí — v hlavě? za očima? v hrudi? Každé nalezené místo je jen další vjem uvnitř bdělosti. V okamžiku, kdy hledání selže, se bdělost ukáže bez hranice. Opakované selhání hledání je zde metoda.']]},
+{type:'kali', n:11, ring:'SUB', title:'Mahákálí', subtitle:'velká Kálí — požíračka času',
+ blocks:[
+  ['FUNKCE','f','Stráven je sám čas. Čas je vzdálenost mezi dvěma zkušenostmi — a kde není dvou, není mezi. Zbývá teď bez břehů.'],
+  ['VNITŘNÍ GESTO','g','Žádné — každé gesto by bylo v čase. Spíše svolení.'],
+  ['MIKRO-PRAXE · HRANA PŘÍTOMNOSTI','p','Zkuste najít jedinou zkušenost, která neproběhla teď. Minulost běžela jako tehdy-přítomnost, budoucnost přijde jako přítomnost. Nelze. Nechte to zjištění dopadnout ne jako myšlenku, ale jako fakt, na němž stojíte.']],
+ detail:{title:'Mahákálí — konec času',
+  paras:['Dokud je poznávající, je sekvence: před a po, vznik a zánik, kolo. Když se v předchozí fázi rozpustil i univerzalizovaný svědek jako poslední jemný objekt, nemá se čas o co opřít. Mahákálí požírá kálu — proto v ikonografii stojí nad Kálou-Šivou jako nad mrtvolou.',
+   'Bezčasí tu neznamená zamrzlé „teď" mezi minulostí a budoucností — to by byl jen velmi tenký čas. Znamená <strong>teď bez břehů</strong>: přítomnost, která nikdy nezačala střídat jinou přítomnost.',
+   'Opatrná poznámka na okraj pro milovníky fyziky: blokový vesmír relativity i bezčasové rovnice kvantové gravitace (Wheeler–DeWitt) ukazují, že „plynutí" času je nápadně těžké najít i ve fyzice. Je to analogie map, ne důkaz — ale zajímavá ozvěna toho, co jogín vidí přímo: čas jako konstrukce narýsovaná přes bezčasí.']}},
+
+{type:'kali', n:12, ring:'SUB', title:'Kálasankaršiní', subtitle:'Mahábhairavačandógraghórakálí — bezejmenná',
+ blocks:[
+  ['FUNKCE','f','Dvanáctá není fáze mezi ostatními. Je to anákhjá celého kola: to, v čem všech jedenáct probíhá a co samo nikam nevstupuje. Nedá se praktikovat — dá se jen rozpoznat.'],
+  ['VNITŘNÍ GESTO','g','Žádné. Toto je to, co zbývá, když gesta ustanou.'],
+  ['MIKRO-NE-PRAXE','p','Po kterékoli praxi, v poslední vteřině, položte nejjemnější otázku: komu se to všechno ukázalo? — a nehledejte odpověď. Ticho, které následuje, když se odpověď nehledá, je dvanáctá.']],
+ detail:{title:'Kálasankaršiní — ta, která stahuje čas',
+  paras:['„Strašlivá velkého Bhairavy" drží celé kolo jako moře vlny. Každá praxe se děje v kole — proto se dvanáctá nedá cvičit; každé uchopení je nová sršti, každý popis nová vlna. Dá se jí jen <strong>nechat prostor</strong>.',
+   'Rozpoznání zpětně promění všech jedenáct: ukáže se, že žádná Kálí nikdy nebyla jiná než tato — vyvstávání, vychutnávání i požírání byly od začátku pohyby jediného bezejmenného pole, které se nikdy nepohnulo.',
+   'Ramanovo „mlčení je nejvyšší poučení" a Nisargadattovo „absolutno, které neví, že je" ukazují přesně sem. Víc o ní nelze říct, aniž by se z ní udělala třináctá věc. Proto kolo v tomto manuálu na dvanácté fázi ztichne — a střed zůstane prázdný.']}},
+
+/* ── KAULA ── */
+{type:'kaula-intro', ring:'KAULA', eyebrow:'Kaula metoda', title:'Emoce jako brána', subtitle:'spanda ve stavu krajní intenzity',
+ blocks:[
+  ['PRINCIP','f','Spandakárika I.22: v krajním hněvu, prudké radosti, ve zmatku či v útěku o život je puls absolutna pevně usazen a zjevný. Prudká emoce na okamžik smete konceptuální obal — v prvním zlomku vteřiny je jen čirý výboj vědomí-energie.'],
+  ['TŘI VZTAHY K EMOCI','g','Potlačení — energie se uloží a hnisá. Vyjádření — energie se vylije do příběhu a posílí. Třetí cesta kauly: energii ani nepotlačit, ani nerozehrát — odejmout jí příběh a nechat ji hořet čistou v poli bdělosti, dokud se sama nerozpustí do zdroje.']],
+ detail:{title:'Proč zrovna intenzita',
+  paras:['Emoce je šakti — táž síla, která točí dvanácti Kálí, jen v hustší, tělesnější podobě. V klidu je jemná a snadno se přehlédne; v hněvu je koncentrovaná a nepřehlédnutelná. Co je pro sútrickou cestu překážka, je pro kaulu <strong>palivo</strong>.',
+   'Mechanismus: běžná zkušenost je zabalená ve vrstvě vikalpy — komentářů, příběhů, plánů. Silná vlna tuto vrstvu na okamžik smete a vědomí je obnažené; vikalpa naskočí až vzápětí. Kaula jogín se učí vstupovat do té první, holé vteřiny.',
+   'Celá metoda stojí na jediném rozlišení: emoce má dvě složky — <strong>čirou energii v těle</strong> a <strong>narativ v hlavě</strong>. Narativ je palivo, které vlnu obnovuje; energie zbavená narativu fyziologicky doznívá v řádu desítek vteřin. A energie plně proniknutá bdělostí se sama vrací do vědomí, z něhož vyšla. To je vše — zbytek jsou kroky.']}},
+
+{type:'kaula', k:0, ring:'KAULA', title:'Krok 0 · Příprava mimo bouři', subtitle:'záměr uložený předem',
+ blocks:[
+  ['CO SE DĚLÁ','f','Metoda se nedá poprvé zkoušet uprostřed zuřivosti. Trénuje se na malých vlnách: podráždění, netrpělivost, drobná lítost.'],
+  ['PRAXE','p','V klidu si uložte záměr: „až přijde vlna, vzpomenu si." Samotné vzpomenutí uprostřed emoce je půlka úspěchu — a zpočátku mnohokrát selže. Každé selhání zaznamenané zpětně zkracuje příští reakční dobu.']],
+ detail:{title:'Krok 0 — trénink na malých vlnách',
+  paras:['Nervový systém se neučí pod maximální zátěží. Jako se plavat neučí v bouři, kaula se neučí v zuřivosti — učí se na vlnkách: fronta, která nejede; e-mail, který dráždí; drobná lítost nad prohozeným slovem.',
+   'Klíčová dovednost tohoto kroku není zvládnutí emoce, ale <strong>vzpomenutí si</strong>. Mezi podnětem a plnou reakcí je okno — zprvu je zavřené, protože reakce startuje rychleji než záměr. Každé zpětné rozpoznání („aha, před hodinou přišla vlna a já si nevzpomněl") okno reálně rozšiřuje: mozek se učí značkovat vlny dřív.',
+   'Praktický nástroj: večer si projděte den a najděte tři vlny, které proběhly bez povšimnutí. Nesuďte je — jen je pojmenujte a všimněte si, kde v těle začínaly. Do týdnů se stane, že tělesný začátek vlny sám zazvoní jako budík.']}},
+
+{type:'kaula', k:1, ring:'KAULA', title:'Krok 1 · Zachycení', subtitle:'kšana-grahana — chycení okamžiku',
+ blocks:[
+  ['CO SE DĚLÁ','f','Vlna přišla — v hrudi a tváři vybuchuje žár. Poznat, že to přišlo, dřív než se plně rozjede jednání.'],
+  ['PRAXE','p','Signálem nechť je tělo, ne mysl: sevření, žár, tlak, zrychlený dech. Tělo je vždy rychlejší a poctivější než mentální komentář.']],
+ detail:{title:'Krok 1 — tělo jako první svědek',
+  paras:['Emoce je v těle dřív, než ji mysl pojmenuje — fyziologická odpověď startuje před vědomým rozpoznáním. Proto se detekce staví na tělesných signálech: každý má svůj podpis (sevřené hrdlo, žár ve tváři, tlak v hrudi, kámen v břiše) a stojí za to jej znát nazpaměť.',
+   'V řeči dvanácti Kálí je tento krok <strong>sršti vlny</strong>: zachycujete vyvstání emoce, stejně jako jste ve fázi 1 zachycovali zrod vjemu a myšlenky. Kdo trénoval kolo, má tu obrovský náskok — je to táž dovednost.',
+   'Častá chyba: čekat na jistotu („je tohle už hněv?"). Nečekejte — reagujte na první tělesný signál. Falešný poplach nic nestojí; propásnutá vlna stojí celé kolo reaktivity.']}},
+
+{type:'kaula', k:2, ring:'KAULA', title:'Krok 2 · Useknutí příběhu', subtitle:'kartika — rozhodující řez',
+ blocks:[
+  ['CO SE DĚLÁ','f','Emoce = čirá energie v těle + narativ v hlavě („on si dovolil… já mu ukážu…"). Narativ je palivo. Řez: upustit příběh vprostřed věty — nedokončit obžalobu, nevynést rozsudek.'],
+  ['PRAXE','p','Neznamená to říct si „nemám se zlobit" — to je jen další, moralistický příběh. Znamená to přestat krmit. Trik pro začátek: přesunout pozornost stoprocentně do tělesného pocitu — hlava nemůže vyprávět, když pozornost stojí celou vahou v hrudi.']],
+ detail:{title:'Krok 2 — chirurgie narativu',
+  paras:['Bez příběhu emoce fyziologicky doznívá překvapivě rychle — v řádu desítek vteřin až minut. Co ji udržuje hodiny a dny, je <strong>smyčka přehrávání</strong>: obžaloba, důkazy, rozsudek, odvolání. Řez vede přesně tudy.',
+   'Je to totéž gesto jako Rudrakálí (7) — useknout komentář vprostřed věty — jen provedené pod zátěží. Proto se kolo trénuje první: kdo umí seknout klidný komentář, sekne časem i rozžhavenou obžalobu.',
+   'Rozlišujte řez od potlačení: potlačení tlačí dolů energii, řez odpojuje jen slova. Energie zůstává plně přítomná — o ni jde v dalším kroku. Pokud po „řezu" cítíte otupění a stažení, usekli jste moc; pokud běží vnitřní monolog dál, neusekli jste nic — jen jste ho přebarvili na duchovní.']}},
+
+{type:'kaula', k:3, ring:'KAULA', title:'Krok 3 · Vstup do čiré energie', subtitle:'šakti-sparša — dotek síly',
+ blocks:[
+  ['CO SE DĚLÁ','f','V těle zbývá žhavý bezejmenný proud. Být s ním tak blízko, že mezi vámi a jím není spára — ne pozorovat z bezpečné vzdálenosti, ale vplout do intenzity a nedělat vůbec nic.'],
+  ['PRAXE','p','Vidžňánabhairava pro hněv: na počátku jej zadrž — ne stlač, ale zadrž jako zadržený dech — a spočiň v jeho čiré síle. Energie zbavená příběhu a plně objatá pozorností mění chuť: žár přestává být „hněvem na někoho" a stává se čirým, téměř neosobním ohněm.']],
+ detail:{title:'Krok 3 — hořet beze jména',
+  paras:['Toto je bod, kde se kaula liší od chladného pozorování. Odstup („dívám se na svůj hněv") udržuje rozdvojení a snadno sklouzne k potlačení v jemném vydání. Kaula jde opačně: <strong>do</strong> intenzity, bez jediného pokusu ji zmenšit — a přitom bez jediného činu.',
+   'Fenomén, který je třeba zažít, ne uvěřit: intenzita bez narativu se láme za hranici příjemné/nepříjemné. Nepříjemnost hněvu je z velké části nepříjemnost příběhu; čirý žár je prostě obrovská energie. Tradice říká, že klešá vydává svou esenci — hněv je zajatá podoba čisté síly jasnosti (buddhistická tantra mapuje hněv na zrcadlovou moudrost: tentýž objev, jiný slovník).',
+   'Tělesně pomáhá: uvolnit čelist a ramena, nechat dech volný, nic nesvírat. Energie potřebuje prostor, aby hořela čistě — sevřené tělo je komín s uzavřeným tahem.']}},
+
+{type:'kaula', k:4, ring:'KAULA', title:'Krok 4 · Rozpoznání', subtitle:'pratjabhidžňá — jediný skutečně kaulský krok',
+ blocks:[
+  ['CO SE DĚLÁ','f','V plameni, který hoří čistě, položit bezeslovnou otázku: co tu hoří a v čem? Ta síla není vaše — vy jste spíš její. Je to výboj téže šakti, která ráno otevřela oči a která točí dvanácti Kálí.'],
+  ['PRAXE','p','V nejsilnějším bodě vlny lze zahlédnout, že intenzita a bdělost, která ji zná, nejsou dvě věci — energie je vědomí v pohybu, spanda. Poznávací znak pravého rozpoznání: bezdůvodná tichá radost uprostřed dosud hořící intenzity — ne až po ní.']],
+ detail:{title:'Krok 4 — Kálí ukazuje tvář',
+  paras:['Předchozí tři kroky zvládne i dobrá terapie; tento je vrchol metody. Rozpoznání (pratjabhidžňá) není myšlenka „aha, tohle je šakti" — to by byla jen nová vikalpa. Je to <strong>přímé zahlédnutí</strong>, že hořící energie a bdělost, která o ní ví, jsou jediná skutečnost ve dvou aspektech.',
+   'V tom okamžiku se emoce stává daršanem: Kálí vám ukázala tvář ve vlastním hněvu. Vlastnictví se hroutí — není „můj hněv v mém těle", je výboj neosobní síly v poli, které nikomu nepatří. A s vlastnictvím se hroutí i vina a obžaloba, protože obě potřebují vlastníka.',
+   'Ramana provádí tutéž operaci z druhé strany: „komu vyvstal hněv?" — odjímá vlně vlastníka, kaula jí odjímá příběh a pak v ní rozpozná vědomí. Obojí končí v témže bodě, kde není ani hněvající se, ani hněv, jen síla vracející se do zdroje.']}},
+
+{type:'kaula', k:5, ring:'KAULA', title:'Krok 5 · Samhára beze stopy', subtitle:'vlna se vrací do moře',
+ blocks:[
+  ['CO SE DĚLÁ','f','Vlna, nekrmená a rozpoznaná, se sama stahuje. Nechat ji doznít až do konce, bez urychlování — a potom bez účtenky: žádné „zvládl jsem hněv, jsem dobrý praktikující".'],
+  ['PRAXE','p','Přesně jako doznění zvonu (Kálí 3) a nevzpomínání (Kálí 4 a 6). Vlna přišla z moře a vrátila se do moře; nikdo nic neudělal. Jednat lze potom — ohradit se, odejít, chránit — ale z jasnosti místo z výbuchu.']],
+ detail:{title:'Krok 5 — nic se nestalo, vše se stalo',
+  paras:['Poslední past je duchovní účtenka: „zvládl jsem to." To je nová vikalpa v kostýmu praktikujícího — Mrtjukálí (6) ví, co s ní. Vlna se nechá doznít celá, a pak se <strong>nepřevezme potvrzení</strong>. Poznáte to podle svěžesti: po skutečném doznění není únava z boje, ale čistota jako po bouřce.',
+   'Metoda neruší jednání. Pokud situace vyžaduje odpověď, přijde po proběhnutí vlny nebo i během ní — ale z jasnosti. Kaula nevyrábí beránky; vyrábí lidi, jejichž síla není zauzlená v reaktivitě. Hněv, který prošel rozpoznáním, se často promění v přesnou, klidnou razanci — schopnost říct ne bez jediného zbytečného decibelu.',
+   'Celé se to u trénovaného člověka odehraje za deset až šedesát vteřin: podnět — žár — vzpomenutí — řez — vplutí — rozpoznání — doznění — nic. A to „nic" na konci je totéž nic, v němž ztichlo kolo dvanácti Kálí.']}},
+
+{type:'variants', ring:'KAULA', eyebrow:'Kaula metoda · varianty', title:'Podle emocí', subtitle:'strach · smutek · radost · touha',
+ blocks:[
+  ['STRACH A ÚLEK','f','Nejrychlejší brána. Úlek na zlomek vteřiny vymaže mysl — pěstujte reflex spočinout v té vymetené jasnosti dřív, než naskočí „co se stalo?!". Úzkost žije z budoucnosti: vraťte pozornost do holé tělesné energie teď — úzkost bez budoucnosti neumí existovat.'],
+  ['SMUTEK A ŽAL','g','Pomalá vlna, neusekávat předčasně — žal je přirozená samhára, rozpouští svět, který už není. Řez vede jen proti ruminaci, ne proti slzám a tíze. Uprostřed čistého žalu se často otevře nečekaná něha.'],
+  ['RADOST','p','I pozitivní vlna má příběh a lpění. Při velké radosti medituj na radost samu — vpluj do ní a hledej, co září, místo přisátí na záminku. Radost bez záminky se ukáže jako bezpředmětná blaženost vědomí.'],
+  ['TOUHA A SLAST','f','V okamžiku silné slasti neulpět na objektu, ale obrátit se k slasti samé a skrze ni k tomu, kdo ji zná. Test poctivosti: skutečná praxe závislost na objektu snižuje. Pokud ji zvyšuje, není to tantra, ale marketing.']],
+ detail:{title:'Varianty — jedna metoda, čtyři chutě',
+  paras:['<strong>Strach:</strong> Spandakárika jmenuje útěk o život výslovně. Úlek (rána, zaskřípění brzd) je nechtěná mikro-iniciace: v prvním zlomku není bojící se osoba, jen elektrizované čiré vědomí. Trénink: první pohyb po úleku nechť není otázka, ale mžikové spočinutí. U úzkosti veďte řez přes budoucnostní příběh — zbylá chvějivá energie je k nerozeznání od vzrušení.',
+   '<strong>Smutek:</strong> pozor na záměnu kroků — smutek dělá práci samháry sám a předčasný řez by ho zmrazil. Slzy tečou s plnou pozorností v hrudi; sekají se jen opakované scény a sebeobviňování. Tradice by řekla: smutek je zajatá podoba soucitu a prostornosti.',
+   '<strong>Radost:</strong> Vidžňánabhairava předepisuje meditovat na radost při setkání s přítelem, v hudbě, ve smíchu. Zjistíte, že důvod radosti byl jen spouštěč, který dovolil mysli přestat chtít — a to, co zazářilo, tam bylo vždycky.',
+   '<strong>Touha:</strong> kaulský klenot a nejošemetnější terén. Vidžňánabhairava říká, že blaženost milostného spojení je ochutnávkou blaženosti brahman — pokud pozornost spočine v blaženosti samé, ne v honbě za stupňováním. Nic se nezneužije snáz než učení „touha je cesta"; proto ten test se závislostí.']}},
+
+{type:'guard', ring:'KAULA', eyebrow:'Kaula metoda · pojistky', title:'Pojistky a etika', subtitle:'tři varování, která tradice bere smrtelně vážně',
+ blocks:[
+  ['1 · ŽÁDNÁ OBHAJOBA AFEKTU','f','Kdo se nechává rozzlobit, „aby mohl praktikovat", pěstuje vásany a klame se. Kaula pracuje s vlnami, které přijdou samy; jejím plodem je dlouhodobé zklidňování reaktivity, ne její kultivace.'],
+  ['2 · TRAUMA NENÍ TRÉNINKOVÝ TERÉN','g','U starých hlubokých zranění může vplutí do plné intenzity spustit zaplavení a retraumatizaci. Tam patří postupnost, ukotvení a doprovázení — terapeut, zkušený učitel. Tradiční kaula nikdy nebyla svépomocná.'],
+  ['3 · JEDNÁNÍ ZŮSTÁVÁ VÁZÁNO ETIKOU','p','Rozpoznání, že hněv je šakti, nikoho neopravňuje ublížit. Naopak — kdo v hněvu skutečně zahlédl čirou sílu vědomí, ztrácí schopnost brát vážně jeho obžaloby.']],
+ detail:{title:'Pojistky — proč je tradice střežila',
+  paras:['Kaula byla vždy předávána pod dohledem, a ne z elitářství: práce s intenzitou bez pojistek má známé havárie. <strong>Duchovní obhajoba afektu</strong> je nejčastější — praxe se stane alibi pro pěstování hněvu či požitku a výsledkem je silnější reaktivita v hezčím kostýmu. Test je jednoduchý a nemilosrdný: dlouhodobě klesá, nebo roste vaše reaktivita a závislost?',
+   '<strong>Trauma</strong> mění pravidla. Zaplavující intenzita starých zranění není vlna, ale tsunami, a „vplout do ní" bez opory může retraumatizovat. Zde platí opačný postup: napřed ukotvení (tělo, dech, bezpečí, vztah), pak po malých dávkách. Přítomnost zkušeného průvodce není slabost, ale tradiční standard.',
+   '<strong>Etika</strong> nakonec: nedualita se nikdy nesmí stát argumentem pro bezohlednost. Abhinavagupta, největší teoretik této cesty, byl zároveň neúnavný v důrazu, že plodem rozpoznání je soucit a jemnost — protože kdo vidí jedinou šakti ve všech, nemá už komu ublížit, aniž ublíží sobě.']}},
+
+{type:'closing', ring:'UVOD', eyebrow:'Závěr', title:'Jedna věta', subtitle:'kterou si odneste',
+ blocks:[
+  ['','f','Nedívej se na to, co vzniklo. Dívej se, odkud to vzniklo a kam to mizí — a zůstaň jako to.'],
+  ['','g','Vše ostatní — dvanáct Kálí, dech, spáry, vlny emocí, kremační háje — je jen lešení kolem tohoto jediného gesta. Podepsal by je Nisargadatta stejně jako kašmírský mistr.']],
+ detail:{title:'Kruh se uzavírá',
+  paras:['Krama sleduje každý poznávací akt k okamžiku, kdy se rodí z čirého vědomí a kdy se do něj vrací. Ramana sleduje já-myšlenku ke zdroji. Kaula nechává vlnu vyhořet v bdělosti. Tři cesty, jedno gesto.',
+   'Poslední, nejjemnější „emoce", s níž se takto pracuje, je samotný pocit <strong>„já jsem"</strong> — nejtišší a nejtrvalejší vlna ze všech. Kdo se naučil nechat vyhořet hněv, učí se na něm techniku, kterou jednoho dne aplikuje na já-pocit sám: nevyseknout, nepotlačit, nerozehrát — vplout, rozpoznat, nechat vrátit do moře.',
+   'To je místo, kde kaula, Krama, átma-vičára i dvanáctá bezejmenná Kálí říkají jedno a totéž beze slov.']}}
+];
+
+/* opravit strukturu slide 10 (byla vnořená) */
+(function fix(){
+  // slide s n:10 má blocks v pořádku, ale detail chybí — doplníme
+  const s10 = slides.find(s=>s.n===10);
+  if(s10 && !s10.detail){
+    s10.detail = {title:'Kálágnirudrakálí — požár subjektivity',
+      paras:['Kálágni je oheň, jímž na konci věku shoří vesmír — zde shoří poslední zeď mezi „mým vědomím" a vědomím. Individuální svědek se rozpouští do svědka univerzálního: bdělost přestává mít adresu, střed i obvod.',
+      'Metodou je <strong>opakované selhání hledání</strong>. Hledáte sídlo pozorovatele poctivě — a každé nalezené místo (za očima, v hrudi) se ukáže jako další vjem <em>uvnitř</em> bdělosti, nikoli její dům. V okamžiku, kdy hledání selže, nastává obrat: to, co hledalo, se ukáže jako to hledané, všude a nikde.',
+      'Vteřina či dvě stačí; násilné setrvávání by z bezadresnosti udělalo nový stav k držení. Silburnová popisuje tuto fázi jako požár subjektivity — a jako u každého požáru platí: nezakládá se, jen se mu nebrání, když vzplane.']};
+  }
+})();
+
+/* ─────────────────────────── SVG GRAFIKA ─────────────────────────── */
+const NS='http://www.w3.org/2000/svg';
+function el(t,attrs,parent){const e=document.createElementNS(NS,t);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function polar(cx,cy,r,aDeg){const a=(aDeg-90)*Math.PI/180;return[cx+r*Math.cos(a),cy+r*Math.sin(a)];}
+function arcPath(cx,cy,r1,r2,a1,a2){
+  const [x1,y1]=polar(cx,cy,r2,a1),[x2,y2]=polar(cx,cy,r2,a2),
+        [x3,y3]=polar(cx,cy,r1,a2),[x4,y4]=polar(cx,cy,r1,a1),
+        large=(a2-a1)>180?1:0;
+  return `M${x1},${y1} A${r2},${r2} 0 ${large} 1 ${x2},${y2} L${x3},${y3} A${r1},${r1} 0 ${large} 0 ${x4},${y4} Z`;
+}
+const ringColor=n=> n<=4?'#d94f2b': n<=8?'#d9a441':'#a98cc9';
+
+/* kolo dvanácti Kálí */
+function wheelSVG(active){ // active: 0=vše ztlumené (intro), 1..12 zvýrazněná, 13='vše' (závěr)
+  const S=440,C=S/2;
+  const svg=el('svg',{viewBox:`0 0 ${S} ${S}`,role:'img','aria-label':'Kolo dvanácti Kálí'});
+  const g=el('g',{class:'pulse'},svg);
+  // vnější jemný kruh + progress arc placeholder
+  el('circle',{cx:C,cy:C,r:205,fill:'none',stroke:'#2a2028','stroke-width':1},g);
+  const prog=el('circle',{cx:C,cy:C,r:205,fill:'none',stroke:'#d94f2b','stroke-width':2,
+    'stroke-linecap':'round','stroke-dasharray':`${2*Math.PI*205}`,'stroke-dashoffset':`${2*Math.PI*205}`,
+    transform:`rotate(-90 ${C} ${C})`,id:'progArc',opacity:.85},g);
+  // 12 segmentů
+  for(let i=1;i<=12;i++){
+    const a1=(i-1)*30+2.5, a2=i*30-2.5;
+    const col=ringColor(i);
+    const isA=(active===i)||(active===13);
+    const p=el('path',{d:arcPath(C,C,138,168,a1,a2),fill:col,
+      opacity:isA?0.95:(active===0?0.28:0.16),stroke:isA?col:'none','stroke-width':isA?2:0},g);
+    if(isA&&active!==13){p.setAttribute('filter','url(#glow)');}
+    // číslo
+    const [tx,ty]=polar(C,C,153,(a1+a2)/2);
+    el('text',{x:tx,y:ty+4,'text-anchor':'middle',fill:isA?'#0d0a11':'#eae0d2',
+      'font-size':isA?15:11,'font-weight':isA?700:400,'font-family':'Karla, sans-serif',
+      opacity:isA?1:0.55},g).textContent=i;
+    // ticky fází uvnitř aktivního segmentu — 4 fáze cyklu naznačeny čárkami
+  }
+  // popisky kol (obloukové zjednodušeně: tři body)
+  const labels=[['objekt',60,'#d94f2b'],['poznávání',180,'#d9a441'],['poznávající',300,'#a98cc9']];
+  labels.forEach(([t,a,c])=>{const [x,y]=polar(C,C,190,a);
+    el('text',{x,y:y+4,'text-anchor':'middle',fill:c,'font-size':10,'letter-spacing':'2',
+      'font-family':'Karla, sans-serif',opacity:.7,'text-transform':'uppercase'},g).textContent=t.toUpperCase();});
+  // spojnice segment → střed pro aktivní
+  if(active>=1&&active<=12){
+    const [x,y]=polar(C,C,138,(active-1)*30+15);
+    el('line',{x1:x,y1:y,x2:C,y2:C,stroke:ringColor(active),'stroke-width':1,opacity:.5,'stroke-dasharray':'3 5'},g);
+  }
+  // střed — anákhjá (prázdný kruh / void)
+  const centerActive=(active===12||active===13);
+  el('circle',{cx:C,cy:C,r:62,fill:'#060409',stroke:centerActive?'#eae0d2':'#3a2b35',
+    'stroke-width':centerActive?1.5:1,filter:centerActive?'url(#glow)':'none'},g);
+  el('circle',{cx:C,cy:C,r:70,fill:'none',stroke:'#3a2b35','stroke-width':.6,opacity:.7},g);
+  const ct=el('text',{x:C,y:C+2,'text-anchor':'middle',fill:centerActive?'#eae0d2':'#948a7e',
+    'font-size':13,'letter-spacing':'3','font-family':'Cormorant Garamond, serif','font-style':'italic'},g);
+  ct.textContent='anākhyā';
+  el('text',{x:C,y:C+20,'text-anchor':'middle',fill:'#5c5350','font-size':9,'letter-spacing':'2',
+    'font-family':'Karla, sans-serif'},g).textContent='BEZEJMENNÉ';
+  // 4 fázové značky kolem středu: sršti/sthiti/samhára/anákhjá
+  const ph=[['sṛṣṭi',0],['sthiti',90],['saṁhāra',180],['anākhyā',270]];
+  ph.forEach(([t,a])=>{const[x,y]=polar(C,C,92,a+45);
+    el('circle',{cx:x,cy:y,r:2.5,fill:'#948a7e',opacity:.8},g);
+    const[lx,ly]=polar(C,C,108,a+45);
+    el('text',{x:lx,y:ly+3,'text-anchor':'middle',fill:'#948a7e','font-size':9,
+      'font-family':'Cormorant Garamond, serif','font-style':'italic',opacity:.85},g).textContent=t;});
+  addGlow(svg);
+  return svg;
+}
+
+/* vlna spandy pro kaulu — kroky 0..5 */
+function waveSVG(step){ // step: -1 = intro (celá vlna), 0..5 zvýrazněný krok, 6=varianty, 7=pojistky
+  const W=460,H=380;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'Vlna emoce a kroky kaula metody'});
+  const g=el('g',{class:'pulse'},svg);
+  // moře — základní linka
+  el('line',{x1:20,y1:290,x2:W-20,y2:290,stroke:'#3a2b35','stroke-width':1},g);
+  el('text',{x:W-22,y:308,'text-anchor':'end',fill:'#948a7e','font-size':10,'letter-spacing':'2',
+    'font-family':'Karla, sans-serif'},g).textContent='MOŘE · VĚDOMÍ V KLIDU';
+  // vlna: cubic path — plochá, stoupá, vrchol, klesá, plochá
+  const wave='M30,290 L90,290 C130,290 140,120 200,100 C240,88 250,95 265,110 C310,155 330,270 400,290 L430,290';
+  el('path',{d:wave,fill:'none',stroke: step===7?'#5c5350':'#d94f2b','stroke-width':2.5,opacity: step===7?.5:.9},g);
+  // výplň pod vlnou jemně
+  el('path',{d:wave+' L430,290 L30,290 Z',fill:'#d94f2b',opacity:.06},g);
+  // body kroků 0..5 na vlně
+  const pts=[[60,290,'0','příprava'],[122,215,'1','zachycení'],[168,128,'2','řez příběhu'],
+             [228,96,'3','vstup do energie'],[278,122,'4','rozpoznání'],[368,262,'5','samhára']];
+  pts.forEach(([x,y,n,t],i)=>{
+    const isA=(step===i);
+    el('circle',{cx:x,cy:y,r:isA?11:6,fill:isA?'#d9a441':'#171019',stroke:isA?'#d9a441':'#948a7e',
+      'stroke-width':isA?2:1,filter:isA?'url(#glow)':'none'},g);
+    el('text',{x,y:y+4,'text-anchor':'middle',fill:isA?'#0d0a11':'#948a7e','font-size':isA?12:9,
+      'font-weight':700,'font-family':'Karla, sans-serif'},g).textContent=n;
+    const above=(y<200);
+    el('text',{x,y:above?y-20:y+26,'text-anchor':'middle',fill:isA?'#d9a441':'#948a7e','font-size':10,
+      'letter-spacing':'1','font-family':'Karla, sans-serif',opacity:isA?1:.7},g).textContent=t;
+  });
+  // řez kartikou u kroku 2 — čárkovaná svislice oddělující "příběh"
+  if(step===2||step===-1){
+    el('line',{x1:168,y1:60,x2:168,y2:128,stroke:'#d9a441','stroke-width':1.5,'stroke-dasharray':'4 4',opacity:.9},g);
+    el('text',{x:168,y:50,'text-anchor':'middle',fill:'#d9a441','font-size':10,'font-style':'italic',
+      'font-family':'Cormorant Garamond, serif'},g).textContent='kartikā — řez narativu';
+  }
+  // pole bdělosti — obdélník za vším
+  el('rect',{x:20,y:34,width:W-40,height:290,fill:'none',stroke:'#3a2b35','stroke-width':.7,rx:6,opacity:.8},g);
+  el('text',{x:26,y:26,'fill':'#948a7e','font-size':10,'letter-spacing':'2','font-family':'Karla, sans-serif'},g)
+    .textContent='POLE BDĚLOSTI · SPANDA';
+  // varianty: 4 mini-vlny
+  if(step===6){
+    const forms=[['strach','M0,30 L10,30 L14,2 L18,30 L60,30','#d94f2b'],
+                 ['smutek','M0,30 C15,30 20,14 30,12 C42,10 50,24 60,30','#d9a441'],
+                 ['radost','M0,30 C10,28 14,6 24,6 C34,6 40,26 46,20 C52,14 56,30 60,30','#a98cc9'],
+                 ['touha','M0,30 C12,30 16,10 26,8 C36,6 40,8 44,14 C50,22 54,30 60,30','#d94f2b']];
+    forms.forEach(([t,d,c],i)=>{
+      const gx=60+i*90, gy=340;
+      const sub=el('g',{transform:`translate(${gx-30},${gy-30})`},g);
+      el('path',{d,fill:'none',stroke:c,'stroke-width':2},sub);
+      el('text',{x:30,y:46,'text-anchor':'middle',fill:c,'font-size':10,'letter-spacing':'1',
+        'font-family':'Karla, sans-serif'},sub).textContent=t;
+    });
+  }
+  // pojistky: tři ochranné kruhy
+  if(step===7){
+    [1,2,3].forEach(i=>el('circle',{cx:230,cy:180,r:40+i*26,fill:'none',stroke:'#d9a441',
+      'stroke-width':1,'stroke-dasharray':'2 6',opacity:.5},g));
+    el('text',{x:230,y:184,'text-anchor':'middle',fill:'#d9a441','font-size':12,'letter-spacing':'2',
+      'font-family':'Cormorant Garamond, serif','font-style':'italic'},g).textContent='pojistky';
+  }
+  addGlow(svg);
+  return svg;
+}
+
+function addGlow(svg){
+  const defs=el('defs',{},svg);
+  const f=el('filter',{id:'glow',x:'-60%',y:'-60%',width:'220%',height:'220%'},defs);
+  el('feGaussianBlur',{stdDeviation:'5',result:'b'},f);
+  const m=el('feMerge',{},f);
+  el('feMergeNode',{in:'b'},m); el('feMergeNode',{in:'SourceGraphic'},m);
+}
+
+/* ─────────────────────────── APLIKACE ─────────────────────────── */
+let idx=0, playing=false, timer=null, tStart=0;
+const DUR=26000; // ms na slide při běhu
+const $=id=>document.getElementById(id);
+
+function graphicFor(s){
+  if(s.type==='kali') return wheelSVG(s.n);
+  if(s.type==='intro') return wheelSVG(0);
+  if(s.type==='closing') return wheelSVG(13);
+  if(s.type==='kaula-intro') return waveSVG(-1);
+  if(s.type==='kaula') return waveSVG(s.k);
+  if(s.type==='variants') return waveSVG(6);
+  if(s.type==='guard') return waveSVG(7);
+  return wheelSVG(0);
+}
+
+function render(){
+  const s=slides[idx];
+  // progress segments
+  const pr=$('progress'); pr.innerHTML='';
+  slides.forEach((sl,i)=>{
+    const d=document.createElement('div');
+    d.className='seg'+(i<idx?' done':'')+(i===idx?' now':'');
+    pr.appendChild(d);
+  });
+  // header ring label
+  $('koloLabel').innerHTML = RING[s.ring].name ?
+    `<b style="color:${RING[s.ring].hex}">●</b>&nbsp;&nbsp;${RING[s.ring].name}` : 'krama · kašmírský šivaismus';
+  // stage
+  const st=$('stage'); st.innerHTML=''; st.appendChild(graphicFor(s));
+  // content
+  const c=$('content');
+  const eyebrow = s.type==='kali' ? `<span class="num">Kálí ${s.n} / 12</span>${RING[s.ring].name}`
+               : s.type==='kaula' ? `<span class="num">krok ${s.k} / 5</span>${RING[s.ring].name}`
+               : (s.eyebrow||'');
+  let html=`<div class="eyebrow">${eyebrow}</div><h1>${s.title}</h1><div class="subtitle">${s.subtitle||''}</div>`;
+  s.blocks.forEach(([h,cls,txt])=>{
+    html+=`<div class="block">${h?`<h3 class="${cls}">${h}</h3>`:''}<p>${txt}</p></div>`;
+  });
+  html+=`<div class="hint-x"><kbd>X</kbd> otevře podrobný výklad této fáze</div>`;
+  c.innerHTML=html; c.scrollTop=0;
+  // restart autoplay progress
+  if(playing) startTimer();
+  updateArc(0);
+}
+
+function updateArc(frac){
+  const a=document.getElementById('progArc');
+  if(a){const L=2*Math.PI*205; a.setAttribute('stroke-dashoffset', L*(1-frac));}
+}
+
+function startTimer(){
+  stopTimer(); tStart=performance.now();
+  function tick(now){
+    const f=(now-tStart)/DUR;
+    if(f>=1){next(true);return;}
+    updateArc(f);
+    timer=requestAnimationFrame(tick);
+  }
+  timer=requestAnimationFrame(tick);
+}
+function stopTimer(){if(timer){cancelAnimationFrame(timer);timer=null;}updateArc(0);}
+
+function next(auto){ if(idx<slides.length-1){idx++;render();} else if(auto){setPlaying(false);} }
+function prev(){ if(idx>0){idx--;render();} }
+function setPlaying(p){
+  playing=p;
+  const lab=$('stateLabel');
+  document.getElementById('app').classList.toggle('paused',!p);
+  if(p){lab.textContent='▶ běží — kolo se otáčí samo';lab.className='state run';startTimer();}
+  else {lab.textContent='⏸ zastaveno — ovládáte ručně';lab.className='state pause';stopTimer();}
+}
+
+/* overlay */
+function toggleOverlay(force){
+  const o=$('overlay');
+  const open = force!==undefined?force:!o.classList.contains('open');
+  if(open){
+    const s=slides[idx], d=s.detail;
+    if(!d)return;
+    const wasPlaying=playing; if(playing)setPlaying(false);
+    o.dataset.resume=wasPlaying?'1':'0';
+    $('overlayCard').innerHTML=
+      `<div class="eyebrow" style="color:${RING[s.ring].hex}">${s.type==='kali'?`Kálí ${s.n} · výklad`:s.type==='kaula'?`krok ${s.k} · výklad`:'výklad'}</div>
+       <h2>${d.title}</h2>`+d.paras.map(p=>`<p>${p}</p>`).join('')+
+      `<div class="overlay-close"><kbd>X</kbd> nebo <kbd>Esc</kbd> zavře výklad</div>`;
+    o.classList.add('open');
+  } else {
+    o.classList.remove('open');
+    if(o.dataset.resume==='1')setPlaying(true);
+  }
+}
+
+/* klávesy */
+document.addEventListener('keydown',e=>{
+  const o=$('overlay').classList.contains('open');
+  if(e.code==='Space'){e.preventDefault(); if(!o)setPlaying(!playing);}
+  else if(e.key==='ArrowRight'){if(!o)next();}
+  else if(e.key==='ArrowLeft'){if(!o)prev();}
+  else if(e.key==='x'||e.key==='X'){toggleOverlay();}
+  else if(e.key==='Escape'){if(o)toggleOverlay(false);}
+});
+$('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')toggleOverlay(false);});
+$('bPrev').onclick=()=>prev();
+$('bNext').onclick=()=>next();
+$('bPlay').onclick=()=>setPlaying(!playing);
+$('bX').onclick=()=>toggleOverlay();
+
+document.getElementById('app').classList.add('paused');
+render();
+</script>
+</body>
+</html>
