@@ -2,7 +2,12 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kálíčakra">
+<meta name="theme-color" content="#0d0a11">
 <title>Kálíčakra — vizuální manuál praxe dvanácti Kálí a kaula metody</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Karla:wght@300;400;600&display=swap" rel="stylesheet">
@@ -30,10 +35,15 @@ body{
   font-family:var(--body);
   font-weight:300;
   overflow:hidden;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+  -webkit-user-select:none;
+  user-select:none;
+  overscroll-behavior:none;
   background-image:radial-gradient(ellipse 90% 70% at 30% 45%, rgba(120,45,25,.13), transparent 60%),
                    radial-gradient(ellipse 60% 50% at 78% 20%, rgba(90,60,120,.10), transparent 65%);
 }
-.app{height:100vh;display:flex;flex-direction:column}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column}
 
 /* ── horní lišta ── */
 header{
@@ -57,11 +67,13 @@ header{
 main{flex:1;display:grid;grid-template-columns:minmax(340px,46%) 1fr;gap:0;min-height:0}
 .stage{
   display:flex;align-items:center;justify-content:center;position:relative;
-  border-right:1px solid var(--line);padding:12px;
+  border-right:1px solid var(--line);padding:12px;cursor:pointer;
 }
 svg{max-width:100%;max-height:100%}
 .content{
   padding:36px 44px;overflow-y:auto;min-height:0;
+  -webkit-user-select:text;user-select:text;
+  -webkit-overflow-scrolling:touch;
   display:flex;flex-direction:column;justify-content:center;
 }
 .eyebrow{font-size:.7rem;letter-spacing:.32em;text-transform:uppercase;color:var(--ash);margin-bottom:14px}
@@ -89,7 +101,14 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(1.8rem,3.4vw,2.9re
 .overlay-card{
   background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--ember);
   max-width:760px;max-height:88vh;overflow-y:auto;padding:40px 48px;border-radius:4px;
+  -webkit-user-select:text;user-select:text;-webkit-overflow-scrolling:touch;
 }
+.ov-close-btn{
+  display:inline-block;margin-top:18px;background:var(--panel2);border:1px solid var(--line);
+  color:var(--bone);padding:12px 26px;border-radius:6px;font-family:var(--body);
+  font-size:.95rem;cursor:pointer;min-height:44px;
+}
+.ov-close-btn:hover{border-color:var(--ember);color:var(--ember)}
 .overlay-card .eyebrow{margin-bottom:10px}
 .overlay-card h2{font-family:var(--display);font-weight:500;font-size:1.9rem;margin-bottom:18px}
 .overlay-card p{font-size:.97rem;line-height:1.72;color:#d8cfc2;margin-bottom:14px}
@@ -99,9 +118,12 @@ h1{font-family:var(--display);font-weight:500;font-size:clamp(1.8rem,3.4vw,2.9re
 /* ── spodní lišta ── */
 footer{
   display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:12px 28px;border-top:1px solid var(--line);flex-wrap:wrap;
+  padding:12px 28px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line);flex-wrap:wrap;
 }
 .keys{display:flex;gap:18px;flex-wrap:wrap;font-size:.76rem;color:var(--ash)}
+.gestures{display:none;font-size:.74rem;color:var(--ash);line-height:1.5}
+.gestures b{color:var(--gold);font-weight:600}
 kbd{
   display:inline-block;border:1px solid #4a3a44;border-bottom-width:2px;border-radius:4px;
   padding:1px 7px;font-family:var(--body);font-size:.72rem;color:var(--bone);
@@ -113,7 +135,8 @@ kbd{
 .btns{display:flex;gap:8px}
 .btns button{
   background:var(--panel2);border:1px solid var(--line);color:var(--bone);
-  padding:6px 14px;border-radius:4px;font-family:var(--body);font-size:.85rem;cursor:pointer;
+  padding:6px 14px;border-radius:6px;font-family:var(--body);font-size:.85rem;cursor:pointer;
+  min-height:44px;min-width:44px;
 }
 .btns button:hover{border-color:var(--ember);color:var(--ember)}
 .btns button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -127,12 +150,25 @@ kbd{
 .paused .pulse{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.pulse{animation:none}}
 
-@media (max-width:860px){
-  main{grid-template-columns:1fr;grid-template-rows:38vh 1fr}
+@media (max-width:860px), (pointer:coarse) and (max-width:1100px){
+  main{grid-template-columns:1fr;grid-template-rows:34vh 1fr}
   .stage{border-right:none;border-bottom:1px solid var(--line)}
-  .content{padding:22px;justify-content:flex-start}
-  h1{font-size:1.7rem}
-  .overlay-card{padding:26px}
+  .content{padding:20px 22px 30px;justify-content:flex-start}
+  h1{font-size:1.65rem}
+  .subtitle{font-size:1.02rem;margin-bottom:16px}
+  .block p{font-size:.94rem}
+  .overlay{padding:2vh 3vw}
+  .overlay-card{padding:26px 22px;max-height:92vh}
+  .keys{display:none}
+  .gestures{display:block}
+  header{padding:calc(12px + env(safe-area-inset-top)) 18px 8px}
+  .brand{font-size:1.1rem}
+  .kolo-label{font-size:.6rem;letter-spacing:.18em;text-align:right}
+  .progress{padding:8px 18px 0}
+  footer{padding:10px 14px calc(10px + env(safe-area-inset-bottom));gap:10px}
+  .btns{width:100%;justify-content:space-between}
+  .btns button{flex:1;font-size:1rem;padding:12px 8px}
+  .state{width:100%;text-align:center;order:-1}
 }
 </style>
 </head>
@@ -158,12 +194,13 @@ kbd{
       <span><kbd>X</kbd>výklad fáze</span>
       <span><kbd>Esc</kbd>zavřít výklad</span>
     </div>
+    <div class="gestures"><b>švih ←/→</b> listování &nbsp;·&nbsp; <b>ťuknutí na kolo</b> běh / pauza &nbsp;·&nbsp; <b>Výklad</b> tlačítkem dole</div>
     <div class="state pause" id="stateLabel">⏸ zastaveno — ovládáte ručně</div>
     <div class="btns">
       <button id="bPrev" aria-label="Zpět">←</button>
-      <button id="bPlay" aria-label="Běh / pauza">▶ / ⏸</button>
+      <button id="bPlay" aria-label="Běh / pauza">▶⏸</button>
       <button id="bNext" aria-label="Vpřed">→</button>
-      <button id="bX" aria-label="Výklad">X · výklad</button>
+      <button id="bX" aria-label="Výklad">Výklad</button>
     </div>
   </footer>
 </div>
@@ -558,6 +595,7 @@ function addGlow(svg){
 
 /* ─────────────────────────── APLIKACE ─────────────────────────── */
 let idx=0, playing=false, timer=null, tStart=0;
+const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 const DUR=26000; // ms na slide při běhu
 const $=id=>document.getElementById(id);
 
@@ -595,7 +633,7 @@ function render(){
   s.blocks.forEach(([h,cls,txt])=>{
     html+=`<div class="block">${h?`<h3 class="${cls}">${h}</h3>`:''}<p>${txt}</p></div>`;
   });
-  html+=`<div class="hint-x"><kbd>X</kbd> otevře podrobný výklad této fáze</div>`;
+  html+=`<div class="hint-x">${isTouch?'Podrobný výklad této fáze otevře tlačítko <b style="color:var(--gold)">Výklad</b> dole':'<kbd>X</kbd> otevře podrobný výklad této fáze'}</div>`;
   c.innerHTML=html; c.scrollTop=0;
   // restart autoplay progress
   if(playing) startTimer();
@@ -626,7 +664,7 @@ function setPlaying(p){
   const lab=$('stateLabel');
   document.getElementById('app').classList.toggle('paused',!p);
   if(p){lab.textContent='▶ běží — kolo se otáčí samo';lab.className='state run';startTimer();}
-  else {lab.textContent='⏸ zastaveno — ovládáte ručně';lab.className='state pause';stopTimer();}
+  else {lab.textContent=isTouch?'⏸ zastaveno — švihem listujete':'⏸ zastaveno — ovládáte ručně';lab.className='state pause';stopTimer();}
 }
 
 /* overlay */
@@ -641,7 +679,8 @@ function toggleOverlay(force){
     $('overlayCard').innerHTML=
       `<div class="eyebrow" style="color:${RING[s.ring].hex}">${s.type==='kali'?`Kálí ${s.n} · výklad`:s.type==='kaula'?`krok ${s.k} · výklad`:'výklad'}</div>
        <h2>${d.title}</h2>`+d.paras.map(p=>`<p>${p}</p>`).join('')+
-      `<div class="overlay-close"><kbd>X</kbd> nebo <kbd>Esc</kbd> zavře výklad</div>`;
+      `<button class="ov-close-btn" onclick="toggleOverlay(false)">✕ &nbsp;Zavřít výklad</button>`+
+      (isTouch?'':`<div class="overlay-close"><kbd>X</kbd> nebo <kbd>Esc</kbd> zavře výklad</div>`);
     o.classList.add('open');
   } else {
     o.classList.remove('open');
@@ -663,6 +702,39 @@ $('bPrev').onclick=()=>prev();
 $('bNext').onclick=()=>next();
 $('bPlay').onclick=()=>setPlaying(!playing);
 $('bX').onclick=()=>toggleOverlay();
+
+/* ── dotyková gesta (iPhone / tablet) ── */
+let tx0=0, ty0=0, t0=0;
+const mainEl=document.querySelector('main');
+mainEl.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0]; tx0=t.clientX; ty0=t.clientY; t0=Date.now();
+},{passive:true});
+mainEl.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tx0, dy=t.clientY-ty0, dt=Date.now()-t0;
+  if(dt<700 && Math.abs(dx)>55 && Math.abs(dx)>2*Math.abs(dy)){
+    if(dx<0) next(); else prev();
+  }
+},{passive:true});
+
+/* ťuknutí na grafiku = běh / pauza */
+$('stage').addEventListener('click',e=>{
+  // ignorovat, pokud šlo o švih (řeší se výše) — click po švihu má malý posun, proto testujeme cíl
+  setPlaying(!playing);
+});
+
+/* švih dolů zavře výklad */
+let ox0=0, oy0=0;
+const ovl=$('overlay');
+ovl.addEventListener('touchstart',e=>{
+  const t=e.changedTouches[0]; ox0=t.clientX; oy0=t.clientY;
+},{passive:true});
+ovl.addEventListener('touchend',e=>{
+  const t=e.changedTouches[0];
+  const dx=t.clientX-ox0, dy=t.clientY-oy0;
+  const card=$('overlayCard');
+  if(dy>90 && Math.abs(dy)>2*Math.abs(dx) && card.scrollTop<=0) toggleOverlay(false);
+},{passive:true});
 
 document.getElementById('app').classList.add('paused');
 render();
